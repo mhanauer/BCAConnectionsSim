@@ -1,4 +1,4 @@
-# BCAConnectionsSim---
+---
 title: "BCA for Connections"
 output: html_document
 ---
@@ -27,26 +27,44 @@ Next step create 40 sets of 10,000 just do this for one at a time
 That is stupid, just create  400,000 random draws and create frame with 40 variables one for each 
 ```{r}
 med_expen_40 = matrix(rep(rnorm(n = 400000, mean = 1500, sd = 100)), ncol = 40, nrow = 10000)
-program_costs = matrix(rep( rnorm(n = 400000, mean = 100, sd = 50)), ncol = 40, nrow = 10000)
+program_costs = matrix(rep( rnorm(n = 400000, mean = 1000, sd = 50)), ncol = 40, nrow = 10000)
 head(med_expen_40)
 ```
-Now we need run a loop for each of the 40 variables.  Wonder if I can do an apply function and go down the columns and create a function with the npv thing
-
+Now we need run a loop for each of the 40 variables.  Wonder if I can do an apply function and go down the rows and create a function with the npv thing
 ```{r}
 dim(med_expen_40)
 npv_med_40 = apply(med_expen_40, 1, function(x){npv(r = .03,x)})
 head(npv_med_40)
 summary(npv_med_40)
 
+npv_program_costs_40 = apply(program_costs, 1, function(x){npv(r = .03,x)})
+
+bca = npv_med_40/npv_program_costs_40
+```
+Let us try a loop for the discount rate
+Cannot have a loop inside a function that is already looping I guess.  Try to fix later.
+```{r}
+npv_med_40_loop = NULL
+discount_rate = c(10:50)/100
+for(i in 1:length(discount_rate)){
+  npv_med_40_loop[[i]]= npv_med_40 = apply(med_expen_40, 1, function(x){npv(r = [[i]],x)})
+}
 
 ```
+
+
+
 Test to see if it doing what you think it is doing.  Take the first row of 40 and see if it matches the first value for npv_med_40
 
 It is correct!!!!
 ```{r}
 npv(r = .03, med_expen_40[1,])
 ```
-Now
+Now run a quick t.test to evaluate if there is a statistically significant difference from 1 
+```{r}
+t.test(bca, mu = 1)
+```
+
 
 Need to discount these benefits over time
 
