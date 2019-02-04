@@ -18,28 +18,30 @@ Job income increase per year: 10000 per year
 Program Costs: 5000 per year
 
 Probably just to be safe assume about a 20% variation
+
+Want to rep the costs 
+What is the opportunity cost: What could they have been doing otherwise reasonably (maybe use the employment percentage from baseline and assume that for fourty years).  They could have had a year of 5 hours a week that they could have been doing
 ```{r}
-med_expen = rnorm(n = 10000, mean = 1500, sd = 100)
-job_income = rnorm(n = 10000, mean = 1500, sd = 100)
-program_costs = rnorm(n = 10000, mean = 1500, sd = 100)
+med_expen = rnorm(n = 10000, mean = 1500, sd = 1500*.2)
+job_income = rnorm(n = 10000, mean = 1500, sd = 1500*.2)
+program_costs = rep(800000, 10000)
+opp_cost = rnorm(n = 10000, mean = 7.25*5*52*72, sd = (7.25*5*52*72)*.2)
+total_costs = program_costs + opp_cost
 ```
 Next step create 40 sets of 10,000 just do this for one at a time
 That is stupid, just create  400,000 random draws and create frame with 40 variables one for each 
 ```{r}
 med_expen_40 = matrix(rep(rnorm(n = 400000, mean = 1500, sd = 100)), ncol = 40, nrow = 10000)
-program_costs = matrix(rep( rnorm(n = 400000, mean = 1000, sd = 50)), ncol = 40, nrow = 10000)
-head(med_expen_40)
 ```
 Now we need run a loop for each of the 40 variables.  Wonder if I can do an apply function and go down the rows and create a function with the npv thing
 ```{r}
+library(FinCal)
 dim(med_expen_40)
 npv_med_40 = apply(med_expen_40, 1, function(x){npv(r = .03,x)})
 head(npv_med_40)
 summary(npv_med_40)
 
-npv_program_costs_40 = apply(program_costs, 1, function(x){npv(r = .03,x)})
-
-bca = npv_med_40/npv_program_costs_40
+bca = npv_med_40/total_costs
 ```
 Let us try a loop for the discount rate
 Cannot have a loop inside a function that is already looping I guess.  Try to fix later.
